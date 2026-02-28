@@ -102,63 +102,99 @@ footer{text-align:center;padding:15px;opacity:0.6;}
 
 <script>
 
-let avg = 300;
+const AVG_UNITS = 300;
+const MAX_MONTHS = 12;
 
 function analyze(){
-let units = document.getElementById("units").value;
-if(units==""){alert("Enter units");return;}
+    let units = document.getElementById("units").value;
+    if(units===""){ alert("Enter units"); return; }
 
-let carbon = units * 0.82;
-let cost = units * 6;
-let score = Math.max(0,100 - (units/5));
-let month = new Date().toLocaleString('default',{month:'short',year:'numeric'});
+    units = parseFloat(units);
 
-let record = {month, units, carbon:carbon.toFixed(2)};
-let history = JSON.parse(localStorage.getItem("energyHistory")) || [];
-history.push(record);
-localStorage.setItem("energyHistory", JSON.stringify(history));
+    let carbon = units * 0.82;
+    let cost = units * 6;
+    let score = Math.max(0, 100 - (units/5));
+    let month = new Date().toLocaleString('default',{month:'short',year:'numeric'});
 
-document.getElementById("output").innerHTML = `
-💰 Bill: ₹${cost}<br>
-🌍 CO₂: ${carbon.toFixed(2)} kg<br>
-🏆 Score: ${score.toFixed(0)}/100
-`;
+    let record = {
+        month: month,
+        units: units,
+        carbon: carbon.toFixed(2)
+    };
 
-loadHistory();
+    let history = JSON.parse(localStorage.getItem("energyHistory")) || [];
+
+    // Remove duplicate month entry (if re-entered same month)
+    history = history.filter(r => r.month !== month);
+
+    history.push(record);
+
+    // Keep only last 12 months
+    if(history.length > MAX_MONTHS){
+        history.shift();
+    }
+
+    localStorage.setItem("energyHistory", JSON.stringify(history));
+
+    document.getElementById("output").innerHTML = `
+        💰 Estimated Bill: ₹${cost}<br>
+        🌍 CO₂ Emission: ${carbon.toFixed(2)} kg<br>
+        🏆 Energy Score: ${score.toFixed(0)}/100<br>
+        ${units < AVG_UNITS ? "🎉 Below Average Usage!" : "⚠ Above Average Usage"}
+    `;
+
+    loadHistory();
 }
 
 function loadHistory(){
-let history = JSON.parse(localStorage.getItem("energyHistory")) || [];
-let table = document.getElementById("historyTable");
-table.innerHTML = "<tr><th>Month</th><th>Units</th><th>CO₂ (kg)</th></tr>";
+    let history = JSON.parse(localStorage.getItem("energyHistory")) || [];
+    let table = document.getElementById("historyTable");
 
-history.forEach(r=>{
-table.innerHTML += `
-<tr>
-<td>${r.month}</td>
-<td>${r.units}</td>
-<td>${r.carbon}</td>
-</tr>`;
-});
-}
+    table.innerHTML = `
+        <tr>
+            <th>Month</th>
+            <th>Units</th>
+            <th>CO₂ (kg)</th>
+        </tr>
+    `;
 
-function adminLogin(){
-let user = document.getElementById("adminUser").value;
-let pass = document.getElementById("adminPass").value;
+    let totalCarbon = 0;
+    let totalUnits = 0;
 
-if(user==="admin" && pass==="1234"){
-document.getElementById("adminPanel").style.display="block";
-document.getElementById("adminMsg").innerHTML="✅ Login Successful";
-}
-else{
-document.getElementById("adminMsg").innerHTML="❌ Invalid Credentials";
-}
+    history.forEach(r=>{
+        totalCarbon += parseFloat(r.carbon);
+        totalUnits += parseFloat(r.units);
+
+        table.innerHTML += `
+            <tr>
+                <td>${r.month}</td>
+                <td>${r.units}</td>
+                <td>${r.carbon}</td>
+            </tr>
+        `;
+    });
+
+    if(history.length > 0){
+        let avgUsage = (totalUnits / history.length).toFixed(1);
+
+        table.innerHTML += `
+            <tr>
+                <th>Total</th>
+                <th>${totalUnits}</th>
+                <th>${totalCarbon.toFixed(2)}</th>
+            </tr>
+        `;
+
+        document.getElementById("output").innerHTML += `
+            <br>📊 Avg Monthly Usage: ${avgUsage} kWh
+        `;
+    }
 }
 
 function clearHistory(){
-localStorage.removeItem("energyHistory");
-loadHistory();
-alert("All history cleared!");
+    localStorage.removeItem("energyHistory");
+    loadHistory();
+    alert("History Cleared Successfully!");
 }
 
 window.onload = loadHistory;
