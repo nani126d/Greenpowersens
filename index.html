@@ -1,237 +1,168 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>GreenPowerSense Pro</title>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>GreenPowerSense</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins;}
-body{background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);color:white;}
-header{text-align:center;padding:30px;}
-h1{color:#00ff99;}
-.container{display:flex;flex-wrap:wrap;justify-content:center;gap:20px;padding:20px;}
-.card{background:rgba(255,255,255,0.08);backdrop-filter:blur(10px);padding:20px;border-radius:15px;width:350px;}
-input,button{width:100%;padding:10px;margin:8px 0;border:none;border-radius:8px;}
-button{background:#00ff99;font-weight:bold;cursor:pointer;}
-button:hover{background:#00cc77;}
-.result{margin-top:10px;color:#00ff99;font-size:0.9rem;}
-table{width:100%;margin-top:10px;border-collapse:collapse;}
-th,td{border:1px solid #00ff99;padding:6px;font-size:0.8rem;text-align:center;}
-#adminPanel{display:none;}
-canvas{margin-top:10px;}
-footer{text-align:center;padding:15px;opacity:0.6;}
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    color:white;
+    overflow-x:hidden;
+}
+
+nav{
+    display:flex;
+    justify-content:space-between;
+    padding:20px 60px;
+}
+
+.logo{
+    font-size:1.5rem;
+    font-weight:700;
+    color:#00ff99;
+}
+
+nav a{
+    margin-left:25px;
+    text-decoration:none;
+    color:white;
+    font-weight:500;
+    transition:0.3s;
+}
+
+nav a:hover{
+    color:#00ff99;
+}
+
+.hero{
+    height:90vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    padding:20px;
+}
+
+.hero h1{
+    font-size:3rem;
+    background:linear-gradient(90deg,#00ff99,#00ccff);
+    -webkit-background-clip:text;
+    color:transparent;
+    animation:fadeIn 2s ease;
+}
+
+.hero p{
+    margin-top:20px;
+    font-size:1.2rem;
+    max-width:700px;
+    opacity:0.8;
+}
+
+.btn{
+    margin-top:30px;
+    padding:12px 25px;
+    background:#00ff99;
+    border:none;
+    border-radius:30px;
+    cursor:pointer;
+    font-weight:bold;
+    transition:0.3s;
+}
+
+.btn:hover{
+    transform:scale(1.1);
+    background:#00cc77;
+}
+
+.features{
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:30px;
+    padding:60px 20px;
+}
+
+.card{
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(10px);
+    padding:25px;
+    border-radius:20px;
+    width:250px;
+    text-align:center;
+    transition:0.4s;
+}
+
+.card:hover{
+    transform:translateY(-10px);
+    box-shadow:0 0 20px #00ff99;
+}
+
+footer{
+    text-align:center;
+    padding:20px;
+    opacity:0.6;
+}
+
+@keyframes fadeIn{
+    from{opacity:0; transform:translateY(30px);}
+    to{opacity:1; transform:translateY(0);}
+}
 </style>
 </head>
 
 <body>
 
-<header>
-<h1>🌿 GreenPowerSense Pro</h1>
-<p>Smart Energy Monitoring & Solar Recommendation System</p>
-</header>
+<nav>
+    <div class="logo">🌿 GreenPowerSense</div>
+    <div>
+        <a href="bill.html">Bill</a>
+        <a href="apps.html">Appliances</a>
+        <a href="solar.html">Solar</a>
+        <a href="admin.html">Admin</a>
+    </div>
+</nav>
 
-<div class="container">
+<section class="hero">
+    <h1>Smart Energy Monitoring & Sustainability System</h1>
+    <p>
+        GreenPowerSense analyzes electricity bills, predicts solar requirements,
+        tracks monthly energy usage and shows your carbon footprint reduction.
+    </p>
+    <button class="btn" onclick="location.href='bill.html'">
+        Get Started
+    </button>
+</section>
 
-<!-- BILL ANALYZER -->
-<div class="card">
-<h3>🧾 Bill Analyzer</h3>
-<input type="number" id="billAmount" placeholder="Enter Total Bill (₹)">
-<input type="number" id="tariff" placeholder="Tariff per Unit (₹)">
-<button onclick="calculateUnits()">Calculate & Analyze</button>
-<div class="result" id="output"></div>
-</div>
-
-<!-- DEVICE ANALYSIS -->
-<div class="card">
-<h3>🏠 Appliance Usage</h3>
-<input type="number" id="ac" placeholder="AC Hours/Day">
-<input type="number" id="fan" placeholder="Fan Hours/Day">
-<input type="number" id="tv" placeholder="TV Hours/Day">
-<button onclick="analyzeDevices()">Analyze Devices</button>
-<div class="result" id="deviceOutput"></div>
-</div>
-
-<!-- SOLAR ESTIMATOR -->
-<div class="card">
-<h3>🌞 Solar Estimator</h3>
-<button onclick="estimateSolar()">Estimate Solar Requirement</button>
-<div class="result" id="solarOutput"></div>
-</div>
-
-<!-- HISTORY -->
-<div class="card">
-<h3>📈 Monthly History</h3>
-<input type="text" id="search" placeholder="Search Month..." onkeyup="searchHistory()">
-<table id="historyTable">
-<tr><th>Month</th><th>Units</th><th>CO₂ (kg)</th></tr>
-</table>
-<canvas id="energyChart"></canvas>
-</div>
-
-<!-- ADMIN -->
-<div class="card">
-<h3>🔐 Admin Login</h3>
-<input type="text" id="adminUser" placeholder="Username">
-<input type="password" id="adminPass" placeholder="Password">
-<button onclick="adminLogin()">Login</button>
-<div class="result" id="adminMsg"></div>
-</div>
-
-<div class="card" id="adminPanel">
-<h3>👨‍💼 Admin Panel</h3>
-<button onclick="clearHistory()">Clear All History</button>
-<div class="result">Admin Controls Active</div>
-</div>
-
-</div>
+<section class="features">
+    <div class="card">
+        <h3>⚡ Bill Analysis</h3>
+        <p>Understand electricity cost & carbon impact.</p>
+    </div>
+    <div class="card">
+        <h3>📈 Usage Tracking</h3>
+        <p>Monitor monthly consumption history.</p>
+    </div>
+    <div class="card">
+        <h3>☀ Solar Estimation</h3>
+        <p>Calculate panels & investment required.</p>
+    </div>
+</section>
 
 <footer>
-© 2026 GreenPowerSense Pro | College Project
+© 2026 GreenPowerSense | Sustainable Innovation Project
 </footer>
-
-<script>
-
-const AVG_UNITS = 300;
-const MAX_MONTHS = 12;
-let chart;
-
-/* BILL CALCULATION */
-function calculateUnits(){
-let bill=document.getElementById("billAmount").value;
-let tariff=document.getElementById("tariff").value;
-
-if(bill<=0 || tariff<=0){ alert("Enter valid values"); return; }
-
-let units=bill/tariff;
-localStorage.setItem("latestUnits",units);
-
-let carbon=units*0.82;
-let score=Math.max(0,100-(units/5));
-let month=new Date().toLocaleString('default',{month:'short',year:'numeric'});
-
-let record={month,units:units.toFixed(2),carbon:carbon.toFixed(2)};
-let history=JSON.parse(localStorage.getItem("energyHistory"))||[];
-
-history=history.filter(r=>r.month!==month);
-history.push(record);
-if(history.length>MAX_MONTHS) history.shift();
-
-localStorage.setItem("energyHistory",JSON.stringify(history));
-
-let recommendation="";
-if(units>400) recommendation="⚠ High usage! Reduce AC & heavy appliances.";
-else if(units>300) recommendation="🌱 Try reducing AC hours.";
-else recommendation="🎉 Great energy efficiency!";
-
-document.getElementById("output").innerHTML=
-`Units: ${units.toFixed(2)} kWh<br>
-CO₂: ${carbon.toFixed(2)} kg<br>
-Energy Score: ${score.toFixed(0)}/100<br>
-${recommendation}`;
-
-loadHistory();
-}
-
-/* DEVICE ANALYSIS */
-function analyzeDevices(){
-let ac=(1500*(document.getElementById("ac").value||0)*30)/1000;
-let fan=(75*(document.getElementById("fan").value||0)*30)/1000;
-let tv=(120*(document.getElementById("tv").value||0)*30)/1000;
-
-let total=ac+fan+tv;
-let suggestion=(ac>total*0.4) ?
-"Reduce AC usage or set temperature to 24°C." :
-"Good appliance balance!";
-
-document.getElementById("deviceOutput").innerHTML=
-`Estimated Units: ${total.toFixed(2)} kWh<br>${suggestion}`;
-}
-
-/* SOLAR ESTIMATION */
-function estimateSolar(){
-let monthly=localStorage.getItem("latestUnits");
-if(!monthly){ alert("Insert bill first"); return; }
-
-let daily=monthly/30;
-let requiredKW=daily/4;
-let cost=requiredKW*50000;
-let yearlySavings=(monthly*6)*12;
-let payback=cost/yearlySavings;
-
-document.getElementById("solarOutput").innerHTML=
-`Required System: ${requiredKW.toFixed(2)} kW<br>
-Estimated Cost: ₹${cost.toFixed(0)}<br>
-Payback Period: ${payback.toFixed(1)} years`;
-}
-
-/* HISTORY LOAD */
-function loadHistory(){
-let history=JSON.parse(localStorage.getItem("energyHistory"))||[];
-let table=document.getElementById("historyTable");
-
-table.innerHTML=`<tr><th>Month</th><th>Units</th><th>CO₂ (kg)</th></tr>`;
-
-let labels=[],data=[];
-
-history.forEach(r=>{
-table.innerHTML+=`<tr><td>${r.month}</td><td>${r.units}</td><td>${r.carbon}</td></tr>`;
-labels.push(r.month);
-data.push(r.units);
-});
-
-drawChart(labels,data);
-}
-
-/* SEARCH */
-function searchHistory(){
-let filter=document.getElementById("search").value.toLowerCase();
-let rows=document.querySelectorAll("#historyTable tr");
-
-rows.forEach((row,i)=>{
-if(i===0) return;
-row.style.display=row.innerText.toLowerCase().includes(filter)?"":"none";
-});
-}
-
-/* CHART */
-function drawChart(labels,data){
-if(chart) chart.destroy();
-chart=new Chart(document.getElementById("energyChart"),{
-type:'line',
-data:{labels:labels,
-datasets:[{label:'Monthly Units',
-data:data,
-borderColor:'#00ff99',
-backgroundColor:'rgba(0,255,153,0.2)',
-fill:true,
-tension:0.4}]}
-});
-}
-
-/* ADMIN */
-function adminLogin(){
-let user=document.getElementById("adminUser").value;
-let pass=document.getElementById("adminPass").value;
-
-if(user==="admin" && pass==="1234"){
-document.getElementById("adminPanel").style.display="block";
-document.getElementById("adminMsg").innerHTML="Login Successful!";
-}else{
-document.getElementById("adminMsg").innerHTML="Invalid Credentials!";
-}
-}
-
-function clearHistory(){
-localStorage.removeItem("energyHistory");
-loadHistory();
-alert("History Cleared!");
-}
-
-window.onload=loadHistory;
-
-</script>
 
 </body>
 </html>
