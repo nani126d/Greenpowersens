@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>GreenPowerSense Pro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins;}
+body{
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+color:white;
+}
+header{text-align:center;padding:30px;}
+h1{color:#00ff99;}
+.container{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:20px;
+padding:20px;
+}
+.card{
+background:rgba(255,255,255,0.08);
+backdrop-filter:blur(10px);
+padding:20px;
+border-radius:15px;
+width:350px;
+}
+input,button{
+width:100%;
+padding:10px;
+margin:8px 0;
+border:none;
+border-radius:8px;
+}
+button{
+background:#00ff99;
+font-weight:bold;
+cursor:pointer;
+}
+button:hover{background:#00cc77;}
+.result{margin-top:10px;color:#00ff99;font-size:0.9rem;}
+table{
+width:100%;
+margin-top:10px;
+border-collapse:collapse;
+}
+th,td{
+border:1px solid #00ff99;
+padding:6px;
+font-size:0.8rem;
+text-align:center;
+}
+#adminPanel{display:none;}
+footer{text-align:center;padding:15px;opacity:0.6;}
+</style>
+</head>
+<body>
+
+<header>
+<h1>🌿 GreenPowerSense</h1>
+<p>Energy Monitoring & Eco Recommendation System</p>
+</header>
+
+<div class="container">
+
+<div class="card">
+<h3>⚡ Energy Analyzer</h3>
+<input type="number" id="units" placeholder="Enter Monthly Units">
+<button onclick="analyze()">Analyze & Save</button>
+<div class="result" id="output"></div>
+</div>
+
+<div class="card">
+<h3>📈 Monthly History</h3>
+<table id="historyTable">
+<tr><th>Month</th><th>Units</th><th>CO₂ (kg)</th></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>🔐 Admin Login</h3>
+<input type="text" id="adminUser" placeholder="Username">
+<input type="password" id="adminPass" placeholder="Password">
+<button onclick="adminLogin()">Login</button>
+<div class="result" id="adminMsg"></div>
+</div>
+
+<div class="card" id="adminPanel">
+<h3>👨‍💼 Admin Panel</h3>
+<button onclick="clearHistory()">Clear All History</button>
+<div class="result">Admin Controls Active</div>
+</div>
+
+</div>
+
+<footer>
+© 2026 GreenPowerSense | College Project
+</footer>
+
+<script>
+
+let avg = 300;
+
+function analyze(){
+let units = document.getElementById("units").value;
+if(units==""){alert("Enter units");return;}
+
+let carbon = units * 0.82;
+let cost = units * 6;
+let score = Math.max(0,100 - (units/5));
+let month = new Date().toLocaleString('default',{month:'short',year:'numeric'});
+
+let record = {month, units, carbon:carbon.toFixed(2)};
+let history = JSON.parse(localStorage.getItem("energyHistory")) || [];
+history.push(record);
+localStorage.setItem("energyHistory", JSON.stringify(history));
+
+document.getElementById("output").innerHTML = `
+💰 Bill: ₹${cost}<br>
+🌍 CO₂: ${carbon.toFixed(2)} kg<br>
+🏆 Score: ${score.toFixed(0)}/100
+`;
+
+loadHistory();
+}
+
+function loadHistory(){
+let history = JSON.parse(localStorage.getItem("energyHistory")) || [];
+let table = document.getElementById("historyTable");
+table.innerHTML = "<tr><th>Month</th><th>Units</th><th>CO₂ (kg)</th></tr>";
+
+history.forEach(r=>{
+table.innerHTML += `
+<tr>
+<td>${r.month}</td>
+<td>${r.units}</td>
+<td>${r.carbon}</td>
+</tr>`;
+});
+}
+
+function adminLogin(){
+let user = document.getElementById("adminUser").value;
+let pass = document.getElementById("adminPass").value;
+
+if(user==="admin" && pass==="1234"){
+document.getElementById("adminPanel").style.display="block";
+document.getElementById("adminMsg").innerHTML="✅ Login Successful";
+}
+else{
+document.getElementById("adminMsg").innerHTML="❌ Invalid Credentials";
+}
+}
+
+function clearHistory(){
+localStorage.removeItem("energyHistory");
+loadHistory();
+alert("All history cleared!");
+}
+
+window.onload = loadHistory;
+
+</script>
+
+</body>
+</html>
