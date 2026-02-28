@@ -4,118 +4,59 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bill Analysis | GreenPowerSense</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins;}
-
 body{
     background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    font-family:'Poppins',sans-serif;
     color:white;
+    text-align:center;
+    padding:50px 20px;
 }
-
 .container{
-    max-width:800px;
-    margin:50px auto;
-    padding:30px;
     background:rgba(255,255,255,0.08);
     backdrop-filter:blur(10px);
+    padding:30px;
     border-radius:20px;
-    text-align:center;
+    max-width:600px;
+    margin:auto;
 }
-
-h1{
-    color:#00ff99;
-    margin-bottom:20px;
-}
-
-input{
-    width:80%;
-    padding:12px;
-    margin:10px 0;
-    border:none;
-    border-radius:10px;
-}
-
-button{
-    padding:12px 25px;
-    background:#00ff99;
-    border:none;
-    border-radius:30px;
-    cursor:pointer;
-    font-weight:bold;
-    transition:0.3s;
-}
-
-button:hover{
-    background:#00cc77;
-    transform:scale(1.05);
-}
-
-.result{
-    margin-top:25px;
-    font-size:1rem;
-    color:#00ff99;
-    line-height:1.6;
-}
-
-a{
-    display:block;
-    margin-top:30px;
-    color:#00ff99;
-    text-decoration:none;
-}
-
-.progress{
-    margin-top:15px;
-    height:12px;
-    background:#333;
-    border-radius:10px;
-    overflow:hidden;
-}
-
-.progress-bar{
-    height:100%;
-    background:#00ff99;
-    width:0%;
-    transition:0.6s;
-}
-
+h1{color:#00ff99;margin-bottom:20px;}
+input{width:80%;padding:12px;margin:10px 0;border:none;border-radius:10px;}
+button{padding:12px 25px;background:#00ff99;border:none;border-radius:30px;cursor:pointer;font-weight:bold;transition:0.3s;}
+button:hover{background:#00cc77;transform:scale(1.05);}
+.result{margin-top:25px;color:#00ff99;line-height:1.6;font-size:1rem;}
+a{display:block;margin-top:30px;color:#00ff99;text-decoration:none;}
+.progress{margin-top:15px;height:12px;background:#333;border-radius:10px;overflow:hidden;}
+.progress-bar{height:100%;background:#00ff99;width:0%;transition:0.6s;}
 </style>
 </head>
-
 <body>
 
 <div class="container">
-    <h1>⚡ Electricity Bill Analysis</h1>
+<h1>⚡ Electricity Bill Analysis</h1>
+<input type="number" id="units" placeholder="Enter Monthly Units (kWh)">
+<button onclick="analyzeBill()">Analyze & Save</button>
 
-    <input type="number" id="units" placeholder="Enter Monthly Units (kWh)">
-    <button onclick="analyzeBill()">Analyze & Save</button>
+<div class="result" id="output"></div>
 
-    <div class="result" id="output"></div>
+<div class="progress">
+    <div class="progress-bar" id="scoreBar"></div>
+</div>
 
-    <div class="progress">
-        <div class="progress-bar" id="scoreBar"></div>
-    </div>
-
-    <a href="dashboard.html">⬅ Go to Dashboard</a>
+<a href="dashboard.html">⬅ Go to Dashboard</a>
 </div>
 
 <script>
-
 const AVG_USAGE = 300;
 
 function analyzeBill(){
-
     let units = document.getElementById("units").value;
-    if(!units){
-        alert("Please enter units");
-        return;
-    }
-
+    if(!units){alert("Please enter units");return;}
     units = parseFloat(units);
 
+    // Calculate values
     let cost = units * 6;
     let carbon = units * 0.82;
     let score = Math.max(0,100 - (units/5));
@@ -129,24 +70,21 @@ function analyzeBill(){
     let record = {month, units, carbon:carbon.toFixed(2)};
 
     let history = JSON.parse(localStorage.getItem("energyHistory")) || [];
-
-    // Prevent duplicate month
-    history = history.filter(r => r.month !== month);
-
+    history = history.filter(r=>r.month!==month); // remove duplicates
     history.push(record);
-
     localStorage.setItem("energyHistory", JSON.stringify(history));
 
+    // Update output
     document.getElementById("output").innerHTML = `
-        💰 Estimated Bill: ₹${cost} <br>
-        🌍 Carbon Emission: ${carbon.toFixed(2)} kg CO₂ <br>
+        💰 Estimated Bill: ₹${cost.toFixed(2)} <br>
+        🌍 CO₂ Emission: ${carbon.toFixed(2)} kg CO₂ <br>
         🏆 Energy Score: ${score.toFixed(0)} / 100 <br>
-        📊 Comparison: ${message}
+        📊 ${message}
     `;
 
-    document.getElementById("scoreBar").style.width = score + "%";
+    // Animate progress bar
+    document.getElementById("scoreBar").style.width = score+"%";
 }
-
 </script>
 
 </body>
